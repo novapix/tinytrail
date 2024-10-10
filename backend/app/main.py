@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from logger import setup_logger
+from logger import logger
 
-logger = setup_logger(name="tinytrail")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

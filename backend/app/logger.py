@@ -13,5 +13,6 @@ def setup_logger(name: str = "app"):
             logging.StreamHandler()  # Log to console
         ]
     )
-    logger = logging.getLogger(name)
-    return logger
+    return logging.getLogger(name)
+
+logger = setup_logger("tinytrail")
