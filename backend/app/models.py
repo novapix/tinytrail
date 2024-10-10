@@ -1,13 +1,18 @@
-from pydantic import BaseModel,HttpUrl
+from pydantic import BaseModel, HttpUrl
+from typing import Optional
+from datetime import datetime
 
-
-class URLCreate(BaseModel):
+class URLBase(BaseModel):
     url: HttpUrl
 
-class URLResponse(BaseModel):
+class URLCreate(URLBase):
+    pass
+
+class URLResponse(URLBase):
     id: str
-    url: HttpUrl
-    short_code: str
-    created_at: str
-    updated_at: str
-    access_count: int
+    shortCode: str
+    createdAt: datetime
+    updatedAt: Optional[datetime] = None
+
+class URLStats(URLResponse):
+    accessCount: int
