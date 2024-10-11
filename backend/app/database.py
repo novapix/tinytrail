@@ -8,7 +8,7 @@ client: AsyncIOMotorClient | None = None
 url_collection: AsyncIOMotorCollection | None  = None
 
 
-async def initialize_db():
+async def initialize_db() -> None:
     global client, url_collection
     MONGO_URI = os.getenv("MONGO_URI")
     if not MONGO_URI:
@@ -38,7 +38,7 @@ async def initialize_db():
         exit(1)
 
 
-async def close_db():
+async def close_db() -> None:
     global client
     if client is not None:
         try:
@@ -51,5 +51,5 @@ async def close_db():
     else:
         logger.info("No active MongoDB connection to close.")
 
-def get_url_collection():
+def get_url_collection() -> AsyncIOMotorCollection:
     return url_collection

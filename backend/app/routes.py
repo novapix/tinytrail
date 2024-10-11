@@ -11,10 +11,12 @@ from utils import get_unique_short_code
 router = APIRouter()
 
 @router.post("/shorten")
-async def shorten_url(request: URLCreate):
+async def shorten_url(request: URLCreate) -> URLResponse:
     try:
         url_collection = get_url_collection()
-        short_code = await get_unique_short_code()
+        if url_collection is None:
+            raise Exception("URL COLLECTION IS NONE")
+        short_code = await get_unique_short_code(url_collection=url_collection)
         current_time = datetime.now(timezone.utc)
         url_data = {
             "url": str(request.url),
@@ -22,7 +24,6 @@ async def shorten_url(request: URLCreate):
             "createdAt": current_time,
             "updatedAt": current_time
         }
-
 
         result = await url_collection.insert_one(url_data)
         logger.info("URL data inserted successfully.")

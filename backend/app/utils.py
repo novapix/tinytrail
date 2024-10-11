@@ -1,9 +1,10 @@
 import string
 import random
+
+from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo.errors import PyMongoError
 
 from logger import logger
-from database import get_url_collection
 
 ALPHABETS = string.ascii_letters + string.digits
 SHORT_CODE_LENGTH = 6
@@ -12,8 +13,7 @@ def generate_short_code(length: int = SHORT_CODE_LENGTH) -> str:
     return ''.join(random.choices(ALPHABETS, k=length))
 
 
-async def get_unique_short_code():
-    url_collection = get_url_collection()
+async def get_unique_short_code(url_collection: AsyncIOMotorCollection) -> str:
     while True:
         short_code = generate_short_code()
         try:
