@@ -1,9 +1,11 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 from pymongo.errors import PyMongoError
 
 from logger import logger
 from database import get_url_collection
-from models import URLCreate
+from models import URLCreate, URLResponse
 from utils import get_unique_short_code
 
 router = APIRouter()
@@ -13,16 +15,24 @@ async def shorten_url(request: URLCreate):
     try:
         url_collection = get_url_collection()
         short_code = await get_unique_short_code()
-        url_data = request.model_dump()
-        url_data["short_code"] = short_code
-
-        await url_collection.insert_one(url_data)
-        logger.info("URL data inserted successfully.")
-        return {
-            "short_code": short_code,
-            "original_url": url_data["url"],
-            "message": "URL shortened successfully."
+        current_time = datetime.now(timezone.utc)
+        url_data = {
+            "url": str(request.url),
+            "shortCode": short_code,
+            "createdAt": current_time,
+            "updatedAt": current_time
         }
+
+
+        result = await url_collection.insert_one(url_data)
+        logger.info("URL data inserted successfully.")
+        return URLResponse(
+            id=str(result.inserted_id),
+            url=request.url,
+            shortCode=short_code,
+            createdAt=url_data["createdAt"],
+            updatedAt=url_data["updatedAt"]
+        )
     except PyMongoError as e:
         logger.error(f"Database error: {e}")
         raise HTTPException(status_code=500, detail="Database error.")
