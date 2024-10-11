@@ -4,7 +4,8 @@ import os
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
-def setup_logger(name: str = "app"):
+
+def setup_logger(name: str = "app") -> object:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -14,5 +15,6 @@ def setup_logger(name: str = "app"):
         ]
     )
     return logging.getLogger(name)
+
 
 logger = setup_logger("tinytrail")
