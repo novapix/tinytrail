@@ -1,18 +1,18 @@
 import logging
-import os
+from pathlib import Path
 
-log_dir = "logs"
-os.makedirs(log_dir, exist_ok=True)
+log_dir = Path(__file__).parent.parent / "logs"
+log_dir.mkdir(exist_ok=True)
 
 
-def setup_logger(name: str = "app") -> object:
+def setup_logger(name: str = "app") -> logging.Logger:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(os.path.join(log_dir, f"{name}.log")),
-            logging.StreamHandler()  # Log to console
-        ]
+            logging.FileHandler(log_dir / f"{name}.log"),
+            logging.StreamHandler(),  # Log to console
+        ],
     )
     return logging.getLogger(name)
 

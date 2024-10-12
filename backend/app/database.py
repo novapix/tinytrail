@@ -1,11 +1,11 @@
 import os
-from logger import logger
+from .logger import logger
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo.errors import PyMongoError
 
 client: AsyncIOMotorClient | None = None
-url_collection: AsyncIOMotorCollection | None  = None
+url_collection: AsyncIOMotorCollection | None = None
 
 
 async def initialize_db() -> None:
@@ -17,15 +17,15 @@ async def initialize_db() -> None:
 
     try:
         client = AsyncIOMotorClient(MONGO_URI)
-        await client.admin.command('ping')
+        await client.admin.command("ping")
         logger.info("MongoDB server pinged successfully.")
         db = client["url_shortener"]
 
         collections = await db.list_collection_names()
 
-        if 'urls' not in collections:
+        if "urls" not in collections:
             logger.info("Collection 'urls' does not exist, creating...")
-            await db.create_collection('urls')
+            await db.create_collection("urls")
             logger.info("'urls' collection created.")
 
         url_collection = db.urls
@@ -50,6 +50,7 @@ async def close_db() -> None:
             client = None
     else:
         logger.info("No active MongoDB connection to close.")
+
 
 def get_url_collection() -> AsyncIOMotorCollection:
     return url_collection
