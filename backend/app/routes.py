@@ -8,14 +8,15 @@ from pymongo.results import InsertOneResult, UpdateResult
 from .logger import logger
 from .database import get_url_collection
 from .models import URLCreate, URLResponse, Message
-from .utils import get_unique_short_code, get_current_time
+from .utils import get_unique_short_code, get_current_time, find_url_by_short_code
 
 router = APIRouter()
+
 
 @router.post("/shorten")
 async def shorten_url(request: URLCreate) -> URLResponse:
     try:
-        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
         if urls_collection is None:
             raise Exception("URL COLLECTION IS NONE")
         short_code = await get_unique_short_code(url_collection=urls_collection)
@@ -73,11 +74,13 @@ async def shorten_url(request: URLCreate) -> URLResponse:
 )
 async def get_original_url(short_code: str) -> URLResponse:
     try:
-        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
         if urls_collection is None:
-            raise Exception("URL COLLECTION IS NONE")
+            raise PyMongoError("URL COLLECTION IS NONE")
 
-        url_entry: Mapping[str, Any] | None | Any = await urls_collection.find_one({"shortCode": short_code})
+        url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
+            short_code, urls_collection
+        )
         if not url_entry:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
@@ -104,28 +107,35 @@ async def get_original_url(short_code: str) -> URLResponse:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred.",
         )
+
 
 @router.put("/shorten/{short_code}")
 async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse:
     try:
-        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
+        url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
+            short_code, urls_collection
+        )
+        if not url_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
+            )
         if urls_collection is None:
             raise Exception("URL COLLECTION IS NONE")
         update_result: UpdateResult = await urls_collection.update_one(
             {"shortCode": short_code},
-            {
-                "$set": {
-                    "url": str(url_update.url),
-                    "updatedAt": get_current_time()
-                }
-            }
+            {"$set": {"url": str(url_update.url), "updatedAt": get_current_time()}},
         )
         if update_result.matched_count == 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found")
-        url_entry: Optional[Mapping[str, Any]] = await urls_collection.find_one({"shortCode": short_code})
-        if not url_entry:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
+            )
+
+        updated_entry = await find_url_by_short_code(short_code,urls_collection)
+        if not updated_entry:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Short URL not found after update",
             )
 
         return URLResponse(
@@ -149,6 +159,3 @@ async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred.",
         )
-
-
-

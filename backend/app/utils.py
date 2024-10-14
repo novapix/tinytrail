@@ -1,3 +1,5 @@
+from typing import Optional, Mapping, Any
+
 import string
 import random
 from datetime import datetime, timezone
@@ -31,3 +33,12 @@ def get_current_time():
     return (
         datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     )
+
+
+async def find_url_by_short_code(
+    short_code: str, urls_collection: Optional[AsyncIOMotorCollection]
+) -> Optional[Mapping[str, Any]]:
+    if urls_collection is None:
+        raise Exception("URL COLLECTION IS NONE")
+
+    return await urls_collection.find_one({"shortCode": short_code})

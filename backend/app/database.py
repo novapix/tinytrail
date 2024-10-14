@@ -55,5 +55,5 @@ async def close_db() -> None:
         logger.info("No active MongoDB connection to close.")
 
 
-def get_url_collection() -> Optional[AsyncIOMotorCollection] :
+def get_url_collection() -> Optional[AsyncIOMotorCollection]:
     return url_collection
