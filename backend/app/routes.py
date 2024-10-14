@@ -112,7 +112,7 @@ async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse
             {"shortCode": short_code},
             {
                 "$set": {
-                    "url": url_update.url,
+                    "url": str(url_update.url),
                     "updatedAt": get_current_time()
                 }
             }
