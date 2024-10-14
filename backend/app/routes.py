@@ -1,6 +1,9 @@
+from typing import Any, Mapping, Optional
+
 from fastapi import APIRouter, HTTPException, status
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo.errors import PyMongoError
+from pymongo.results import InsertOneResult, UpdateResult
 
 from .logger import logger
 from .database import get_url_collection
@@ -12,7 +15,7 @@ router = APIRouter()
 @router.post("/shorten")
 async def shorten_url(request: URLCreate) -> URLResponse:
     try:
-        urls_collection = get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
         if urls_collection is None:
             raise Exception("URL COLLECTION IS NONE")
         short_code = await get_unique_short_code(url_collection=urls_collection)
@@ -25,7 +28,7 @@ async def shorten_url(request: URLCreate) -> URLResponse:
             "accessCount": 0,
         }
 
-        result = await urls_collection.insert_one(url_data)
+        result: InsertOneResult = await urls_collection.insert_one(url_data)
         logger.info("URL data inserted successfully.")
         return URLResponse(
             id=str(result.inserted_id),
@@ -70,11 +73,11 @@ async def shorten_url(request: URLCreate) -> URLResponse:
 )
 async def get_original_url(short_code: str) -> URLResponse:
     try:
-        urls_collection = get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
         if urls_collection is None:
             raise Exception("URL COLLECTION IS NONE")
 
-        url_entry = await urls_collection.find_one({"shortCode": short_code})
+        url_entry: Mapping[str, Any] | None | Any = await urls_collection.find_one({"shortCode": short_code})
         if not url_entry:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
@@ -105,10 +108,10 @@ async def get_original_url(short_code: str) -> URLResponse:
 @router.put("/shorten/{short_code}")
 async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse:
     try:
-        urls_collection: AsyncIOMotorCollection = get_url_collection()
+        urls_collection: Optional[AsyncIOMotorCollection]= get_url_collection()
         if urls_collection is None:
             raise Exception("URL COLLECTION IS NONE")
-        update_result = await urls_collection.update_one(
+        update_result: UpdateResult = await urls_collection.update_one(
             {"shortCode": short_code},
             {
                 "$set": {
@@ -119,7 +122,12 @@ async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse
         )
         if update_result.matched_count == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found")
-        url_entry = await urls_collection.find_one({"shortCode": short_code})
+        url_entry: Optional[Mapping[str, Any]] = await urls_collection.find_one({"shortCode": short_code})
+        if not url_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
+            )
+
         return URLResponse(
             id=str(url_entry["_id"]),
             url=url_entry["url"],

@@ -1,16 +1,19 @@
+from typing import Optional
+
 import os
 from .logger import logger
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo.errors import PyMongoError
 
-client: AsyncIOMotorClient | None = None
-url_collection: AsyncIOMotorCollection | None = None
+client: Optional[AsyncIOMotorClient] = None
+url_collection: Optional[AsyncIOMotorCollection] = None
 
 
+# noinspection PyPep8Naming
 async def initialize_db() -> None:
     global client, url_collection
-    MONGO_URI = os.getenv("MONGO_URI")
+    MONGO_URI: str | None = os.getenv("MONGO_URI")
     if not MONGO_URI:
         logger.error("MONGO_URI not set")
         exit(1)
@@ -52,5 +55,5 @@ async def close_db() -> None:
         logger.info("No active MongoDB connection to close.")
 
 
-def get_url_collection() -> AsyncIOMotorCollection:
+def get_url_collection() -> Optional[AsyncIOMotorCollection] :
     return url_collection

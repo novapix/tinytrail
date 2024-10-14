@@ -10,3 +10,8 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "uvicorn>=0.31.1",
 ]
+
+[tool.uv]
+dev-dependencies = [
+    "mypy>=1.12.0",
+]
