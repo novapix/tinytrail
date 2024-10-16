@@ -50,7 +50,7 @@ export default function HomePage() {
           <DeleteUrlForm isOpen={openCard === 'delete'} />
         </main>
 
-        <footer className="mt-20 text-center">
+        <footer className="mt-20 fixed text-center inset-x-0">
           <p className="text-gray-500">
             &copy; 2024 Tinytrail. All rights reserved.
           </p>
