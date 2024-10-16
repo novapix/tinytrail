@@ -112,6 +112,7 @@ async def get_original_url(short_code: str) -> URLResponse:
 @router.put("/shorten/{short_code}")
 async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse:
     try:
+        # logger.info(url_update)
         urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
         url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
             short_code, urls_collection

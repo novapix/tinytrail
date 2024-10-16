@@ -11,15 +11,19 @@ export default function UpdateUrlForm({ isOpen }: URLFormProps) {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    let url = newUrl;
 
     try {
-      const response = await fetch(`/shorten/${shortCode}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ shortCode, newUrl }),
-      });
+      const response = await fetch(
+        `http://127.0.0.1:8000/shorten/${shortCode}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        }
+      );
 
       if (response.ok) {
         alert('URL updated successfully!');
