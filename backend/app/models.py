@@ -6,6 +6,8 @@ from datetime import datetime
 class Message(BaseModel):
     message: str
 
+class DeletedMessage(Message):
+    custom_msg: str = "Short URL Deleted Successfully"
 
 class URLBase(BaseModel):
     url: HttpUrl

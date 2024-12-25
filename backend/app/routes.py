@@ -1,13 +1,13 @@
 from typing import Any, Mapping, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pymongo.errors import PyMongoError
 from pymongo.results import InsertOneResult, UpdateResult
 
 from .logger import logger
 from .database import get_url_collection
-from .models import URLCreate, URLResponse, Message
+from .models import URLCreate, URLResponse, Message, DeletedMessage
 from .utils import get_unique_short_code, get_current_time, find_url_by_short_code
 
 router = APIRouter()
@@ -112,7 +112,6 @@ async def get_original_url(short_code: str) -> URLResponse:
 @router.put("/shorten/{short_code}")
 async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse:
     try:
-        # logger.info(url_update)
         urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
         url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
             short_code, urls_collection
@@ -146,6 +145,41 @@ async def update_long_url(url_update: URLCreate, short_code: str) -> URLResponse
             createdAt=url_entry["createdAt"],
             updatedAt=url_entry.get("updatedAt"),
         )
+    except PyMongoError as e:
+        logger.error(f"Database error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error."
+        )
+    except HTTPException as http_ex:
+        logger.error(f"HTTP error occurred: {http_ex.detail}")
+        raise http_ex
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred.",
+        )
+
+
+
+# noinspection DuplicatedCode
+@router.delete("/shorten/{short_code}")
+async def delete_url(short_code: str, response: Response) -> Message:
+    try:
+        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
+        url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
+            short_code, urls_collection
+        )
+        if not url_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
+            )
+        if urls_collection is None:
+            raise Exception("URL COLLECTION IS NONE")
+        delete_result = await urls_collection.delete_one({"shortCode": short_code})
+        if delete_result.deleted_count:
+            response.status_code = status.HTTP_204_NO_CONTENT
+            return DeletedMessage()
     except PyMongoError as e:
         logger.error(f"Database error: {e}")
         raise HTTPException(
