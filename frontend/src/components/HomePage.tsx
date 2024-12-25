@@ -26,27 +26,32 @@ export default function HomePage() {
         </header>
 
         <main className="flex flex-col items-center space-y-12 w-full">
-          <button
-            onClick={() => handleToggle('create')}
-            className="text-lg text-gray-700"
-          >
-            Create URL
-          </button>
+          {openCard !== 'create' && (
+            <button
+              onClick={() => handleToggle('create')}
+              className="text-lg text-gray-700"
+            >
+              Create URL
+            </button>
+          )}
           <URLShortener isOpen={openCard === 'create'} />
-          <button
-            onClick={() => handleToggle('update')}
-            className="text-lg text-gray-700"
-          >
-            Update URL
-          </button>
+          {openCard !== 'update' && (
+            <button
+              onClick={() => handleToggle('update')}
+              className="text-lg text-gray-700"
+            >
+              Update URL
+            </button>
+          )}
           <UpdateUrlForm isOpen={openCard === 'update'} />
-          <button
-            onClick={() => handleToggle('delete')}
-            className="text-lg text-gray-700"
-          >
-            Delete URL
-          </button>
-
+          {openCard !== 'delete' && (
+            <button
+              onClick={() => handleToggle('delete')}
+              className="text-lg text-gray-700"
+            >
+              Delete URL
+            </button>
+          )}
           <DeleteUrlForm isOpen={openCard === 'delete'} />
         </main>
 
