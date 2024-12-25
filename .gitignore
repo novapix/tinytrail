@@ -89,3 +89,4 @@ dist
 *.py[cod]
 *$py.class
 *.so
+**/package-lock.json

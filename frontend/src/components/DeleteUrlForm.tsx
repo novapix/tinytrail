@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrashIcon } from '@heroicons/react/24/solid';
 import { URLFormProps } from '@/types/types.ts';
+import { Trash2 } from 'lucide-react';
 
 export default function DeleteUrlForm({ isOpen }: URLFormProps) {
   const [deleteCode, setDeleteCode] = useState('');
@@ -60,7 +60,7 @@ export default function DeleteUrlForm({ isOpen }: URLFormProps) {
             className="w-full bg-white text-red-600 hover:bg-red-100 transition-colors duration-300 text-lg py-6 rounded-full font-semibold flex items-center justify-center"
           >
             Delete URL
-            <TrashIcon className="ml-2 h-5 w-5" />
+            <Trash2 />
           </Button>
         </form>
       </CardContent>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
+import { DiamondPlus } from 'lucide-react';
 import { URLFormProps } from '@/types/types.ts';
 
 export default function UpdateUrlForm({ isOpen }: URLFormProps) {
@@ -82,7 +82,7 @@ export default function UpdateUrlForm({ isOpen }: URLFormProps) {
             className="w-full bg-white text-green-600 hover:bg-green-100 transition-colors duration-300 text-lg py-6 rounded-full font-semibold flex items-center justify-center"
           >
             Update URL
-            <ArrowRightIcon className="ml-2 h-5 w-5" />
+            <DiamondPlus />
           </Button>
         </form>
       </CardContent>

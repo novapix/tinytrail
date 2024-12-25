@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
+import { CirclePlus } from 'lucide-react';
 import { URLFormProps } from '@/types/types.ts';
 
 export default function URLShortener({ isOpen }: URLFormProps) {
@@ -68,7 +68,7 @@ export default function URLShortener({ isOpen }: URLFormProps) {
             className="w-full bg-white text-blue-600 hover:bg-blue-100 transition-colors duration-300 text-lg py-6 rounded-full font-semibold flex items-center justify-center"
           >
             Shorten it
-            <ArrowRightIcon className="ml-2 h-5 w-5" />
+            <CirclePlus />
           </Button>
         </form>
         {shortCode && (
