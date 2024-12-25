@@ -7,10 +7,32 @@ import { URLFormProps } from '@/types/types.ts';
 
 export default function URLShortener({ isOpen }: URLFormProps) {
   const [longURL, setLongURL] = useState('');
+  const [shortCode, setShortCode] = useState('');
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/shorten`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: longURL }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setShortCode(data.shortCode);
+        alert('URL created successfully!');
+        setLongURL('');
+      } else {
+        alert('Error updating URL');
+      }
+    } catch (error) {
+      alert('Failed to update URL');
+    }
     // API CALL PENDING
+
     console.log('Shortening URL:', longURL);
   };
   if (!isOpen) return null;
@@ -49,6 +71,11 @@ export default function URLShortener({ isOpen }: URLFormProps) {
             <ArrowRightIcon className="ml-2 h-5 w-5" />
           </Button>
         </form>
+        {shortCode && (
+          <div className="mt-4 text-center">
+            <p className="text-lg">Short URL Code: {shortCode}</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
