@@ -1,11 +1,15 @@
-
-import HomePage from '@/components/HomePage';  // Import the HomePage component we created earlier
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from '@/components/HomePage';
+import RedirectPage from '@/components/RedirectPage';
 
 function App() {
   return (
-    <div className="App">
-      <HomePage />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/:shortCode" element={<RedirectPage />} />
+      </Routes>
+    </Router>
   );
 }
 

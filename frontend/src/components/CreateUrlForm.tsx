@@ -41,7 +41,7 @@ export default function URLShortener({ isOpen }: URLFormProps) {
     <Card className="w-full max-w-md mx-auto bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-xl">
       <CardHeader className="pb-4">
         <CardTitle className="text-3xl font-bold text-center">
-          URL Shortener
+          Create New URL
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -73,7 +73,10 @@ export default function URLShortener({ isOpen }: URLFormProps) {
         </form>
         {shortCode && (
           <div className="mt-4 text-center">
-            <p className="text-lg">Short URL Code: {shortCode}</p>
+            <p className="text-lg">
+              Short URL : {window.location.href}
+              {shortCode}
+            </p>
           </div>
         )}
       </CardContent>
