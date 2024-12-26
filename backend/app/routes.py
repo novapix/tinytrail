@@ -13,6 +13,42 @@ from .utils import get_unique_short_code, get_current_time, find_url_by_short_co
 router = APIRouter()
 
 
+async def get_url_response(short_code: str) -> URLResponse:
+    try:
+        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
+        if urls_collection is None:
+            raise PyMongoError("URL COLLECTION IS NONE")
+
+        url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
+            short_code, urls_collection
+        )
+        if not url_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
+            )
+
+        return URLResponse(
+            id=str(url_entry["_id"]),
+            url=url_entry["url"],
+            shortCode=url_entry["shortCode"],
+            createdAt=url_entry["createdAt"],
+            updatedAt=url_entry.get("updatedAt"),
+        )
+    except PyMongoError as e:
+        logger.error(f"Database error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error."
+        )
+    except HTTPException as http_ex:
+        logger.error(f"HTTP error occurred: {http_ex.detail}")
+        raise http_ex
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred.",
+        )
+
 @router.post("/shorten")
 async def shorten_url(request: URLCreate) -> URLResponse:
     try:
@@ -73,40 +109,12 @@ async def shorten_url(request: URLCreate) -> URLResponse:
     },
 )
 async def get_original_url(short_code: str) -> URLResponse:
-    try:
-        urls_collection: Optional[AsyncIOMotorCollection] = get_url_collection()
-        if urls_collection is None:
-            raise PyMongoError("URL COLLECTION IS NONE")
+    return await get_url_response(short_code)
 
-        url_entry: Optional[Mapping[str, Any]] = await find_url_by_short_code(
-            short_code, urls_collection
-        )
-        if not url_entry:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Short URL not found"
-            )
 
-        return URLResponse(
-            id=str(url_entry["_id"]),
-            url=url_entry["url"],
-            shortCode=url_entry["shortCode"],
-            createdAt=url_entry["createdAt"],
-            updatedAt=url_entry.get("updatedAt"),
-        )
-    except PyMongoError as e:
-        logger.error(f"Database error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error."
-        )
-    except HTTPException as http_ex:
-        logger.error(f"HTTP error occurred: {http_ex.detail}")
-        raise http_ex
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred.",
-        )
+@router.get("/{short_code}/stats", response_model=URLResponse)
+async def get_url_stats(short_code: str) -> URLResponse:
+    return await get_url_response(short_code)
 
 
 @router.put("/shorten/{short_code}")
@@ -194,3 +202,6 @@ async def delete_url(short_code: str, response: Response) -> Message:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred.",
         )
+
+
+
