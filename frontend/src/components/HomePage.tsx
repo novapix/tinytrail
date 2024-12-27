@@ -2,13 +2,14 @@ import { useState } from 'react';
 import URLShortener from '@/components/CreateUrlForm.tsx';
 import UpdateUrlForm from '@/components/UpdateUrlForm';
 import DeleteUrlForm from '@/components/DeleteUrlForm';
+import GetStatsForm from '@/components/GetStatsForm.tsx';
 
 export default function HomePage() {
-  const [openCard, setOpenCard] = useState<'create' | 'update' | 'delete'>(
-    'create'
-  ); // Default to 'create'
+  const [openCard, setOpenCard] = useState<
+    'create' | 'update' | 'delete' | 'stats'
+  >('create'); // Default to 'create'
 
-  const handleToggle = (card: 'create' | 'update' | 'delete') => {
+  const handleToggle = (card: 'create' | 'update' | 'delete' | 'stats') => {
     setOpenCard(openCard === card ? 'create' : card); // reset to 'create' if the same card is clicked
   };
 
@@ -53,6 +54,15 @@ export default function HomePage() {
             </button>
           )}
           <DeleteUrlForm isOpen={openCard === 'delete'} />
+          {openCard !== 'stats' && (
+            <button
+              onClick={() => handleToggle('stats')}
+              className="text-lg text-gray-700"
+            >
+              Get Stats
+            </button>
+          )}
+          <GetStatsForm isOpen={openCard === 'stats'} />
         </main>
 
         <footer className="mt-20 fixed text-center inset-x-0 bottom-1">

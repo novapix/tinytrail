@@ -73,10 +73,7 @@ export default function URLShortener({ isOpen }: URLFormProps) {
         </form>
         {shortCode && (
           <div className="mt-4 text-center">
-            <p className="text-lg">
-              Short URL : {window.location.href}
-              {shortCode}
-            </p>
+            <p className="text-lg">Short URL: {shortCode}</p>
           </div>
         )}
       </CardContent>
