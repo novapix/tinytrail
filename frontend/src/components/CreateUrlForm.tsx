@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,13 @@ import { URLFormProps } from '@/types/types.ts';
 export default function URLShortener({ isOpen }: URLFormProps) {
   const [longURL, setLongURL] = useState('');
   const [shortCode, setShortCode] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) {
+      setLongURL('');
+      setShortCode('');
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();

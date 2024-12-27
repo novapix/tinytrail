@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,14 @@ export default function GetStatsForm({ isOpen }: URLFormProps) {
   const [shortCode, setShortCode] = useState('');
   const [stats, setStats] = useState<URLResponse | null>(null);
   const requestMade = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setStats(null);
+      setShortCode('');
+      requestMade.current = false;
+    }
+  }, [isOpen]);
 
   const statsHandler = async (e: React.FormEvent) => {
     if (requestMade.current) return;
